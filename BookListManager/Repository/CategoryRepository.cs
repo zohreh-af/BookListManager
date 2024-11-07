@@ -12,27 +12,27 @@ namespace BookListManager.Repository
         {
             _db = db;
         }
-        public Category Create(Category obj)
+        public async Task<Category> CreateAsync(Category obj)
         {
             _db.Category.Add(obj);
-            _db.SaveChanges();
+            await _db.SaveChangesAsync();
             return obj;
 
         }
 
-        public bool Delete(int id)
+        public async Task<bool> DeleteAsync(int id)
         {
             var category = _db.Category.Find(id);
             if (category == null) return false;
             _db.Category.Remove(category);
-            _db.SaveChanges();
+            await _db.SaveChangesAsync();
             return true;
         
         }
 
-        public Category Get(int id)
+        public async Task<Category> GetByIdAsync(int id)
         {
-            var obj = _db.Category.Find(id);
+            var obj =await _db.Category.FindAsync(id);
             if (obj == null)
             {
                 return new Category();
@@ -40,28 +40,28 @@ namespace BookListManager.Repository
             return obj;
         }
 
-        public IEnumerable<Category> GetAll()
+        public async Task<IEnumerable<Category>> GetAllAsync()
         {
-            return _db.Category.ToList();
+            return (await _db.Category.ToListAsync());
         }
-        public Category GetById(int id)
+        
+        
+        
+        
+        public async Task<Category> GetByNameAsync(string name)
         {
-            return _db.Category.Find(id);
+            return (await _db.Category.FirstOrDefaultAsync(c => c.CategoryName == name));
         }
 
-        public Category GetByName(string name)
+        public async Task<Category> UpdateAsync(Category obj)
         {
-            return _db.Category.FirstOrDefault(c => c.CategoryName == name);
-        }
-
-        public Category Update(Category obj)
-        {
-            var category = _db.Category.Find(obj);
-            if (category is not null)
+            var category = await _db.Category.FirstOrDefaultAsync(c => c.CategoryId == obj.CategoryId);
+            if (category != null)
             {
-                _db.Category.Update(obj);
-                _db.SaveChanges();
-                return obj;
+                category.CategoryName = obj.CategoryName;
+                _db.Category.Update(category);
+                await _db.SaveChangesAsync();
+                return category;
             }
             return new Category();
         }

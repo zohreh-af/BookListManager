@@ -4,12 +4,12 @@ namespace BookListManager.Repository.IRepository
 {
     public interface IBookRepository
     {
-        public Book GetById (int id);    
-        public Book Create (Book Obj);
-        public Book Update (Book book);
-        public bool Delete (int id);
-        public Book GetByName(string title);
-        public Book Get(int id);
-        public IEnumerable<Book> GetAll();
+        public Task<Book> GetByIdAsync(int id);    
+        public Task<Book> CreateAsync(Book Obj);
+        public Task<Book> UpdateAsync(Book book);
+        public Task<bool> DeleteAsync(int id);
+        public Task<Book> GetByNameAsync(string title);
+        public Task<Book> GetAsync(int id);
+        public Task<IEnumerable<Book>> GetAllAsync();
     }
 }

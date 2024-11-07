@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace BookListManager.Models
 {
@@ -11,6 +12,7 @@ namespace BookListManager.Models
         public string Author { get; set; }
 
         public int CategoryId { get; set; }
+        [ForeignKey("CategoryId")]
         public  Category Category { get; set; }
         
     }

@@ -3,7 +3,6 @@
 @using BookListManager.Models
 @using BookListManager.Data
 @inject NavigationManager Nav
-@inject AuthenticationService AuthService
 
 
 <div class=" container">
@@ -41,7 +40,7 @@
                         <td>@book.Author</td>
                         <td>Category</td>  
                         <td>
-                            @if (isUserAuthorized)
+                            
                             {
                             <a  class="btn btn-dark" href="/Book/EditBook/@book.BookId"><i class="bi bi-pencil-fill"></i> Edit</a>
                             <EditForm
@@ -66,16 +65,22 @@
 @code {
     private List<Book> books;
     // private List<Category> categories = CategoriesRepository.GetCategories();
-    private bool isUserAuthorized;
+    //private bool isUserAuthorized;
 
     protected override async Task OnInitializedAsync()
     {
-        isUserAuthorized = await AuthService.IsAuthenticatedAsync();
+        await LoadCategories();
     }
+
+    private async Task LoadCategories()
+    {
+        //books = await _bookRepository.GetAllAsync();
+    }
+
 
     private void DeleteBook(int bookId)
     {
-        if (!isUserAuthorized) return;
+        //if (!isUserAuthorized) return;
 
         if (bookId > 0)
         {

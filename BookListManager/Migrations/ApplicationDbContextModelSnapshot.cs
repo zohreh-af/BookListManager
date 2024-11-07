@@ -125,12 +125,7 @@ namespace BookListManager.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<int?>("ParentCategoryId")
-                        .HasColumnType("int");
-
                     b.HasKey("CategoryId");
-
-                    b.HasIndex("ParentCategoryId");
 
                     b.ToTable("Category");
                 });
@@ -279,15 +274,6 @@ namespace BookListManager.Migrations
                     b.Navigation("Category");
                 });
 
-            modelBuilder.Entity("BookListManager.Models.Category", b =>
-                {
-                    b.HasOne("BookListManager.Models.Category", "ParentCategory")
-                        .WithMany("SubCategories")
-                        .HasForeignKey("ParentCategoryId");
-
-                    b.Navigation("ParentCategory");
-                });
-
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
                 {
                     b.HasOne("Microsoft.AspNetCore.Identity.IdentityRole", null)
@@ -342,8 +328,6 @@ namespace BookListManager.Migrations
             modelBuilder.Entity("BookListManager.Models.Category", b =>
                 {
                     b.Navigation("Books");
-
-                    b.Navigation("SubCategories");
                 });
 #pragma warning restore 612, 618
         }

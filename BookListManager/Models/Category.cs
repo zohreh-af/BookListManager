@@ -7,14 +7,8 @@ namespace BookListManager.Models
         public int CategoryId { get; set; }
         [Required]
         public string CategoryName { get; set; }
-        public string Slug
-        {
-            get
-            {
-                return CategoryName.ToLower();
-            }
-        }
-        public ICollection<Book> Books { get; set; }
+        
+        //public ICollection<Book> Books { get; set; }
 
 
 

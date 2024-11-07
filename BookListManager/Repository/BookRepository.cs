@@ -1,6 +1,7 @@
 ﻿using BookListManager.Data;
 using BookListManager.Models;
 using BookListManager.Repository.IRepository;
+using Microsoft.EntityFrameworkCore;
 
 namespace BookListManager.Repository
 {
@@ -11,22 +12,22 @@ namespace BookListManager.Repository
         {
             _db = db;
         }
-        public Book Create(Book Obj)
+        public async Task<Book> CreateAsync(Book Obj)
         {
             _db.Book.Add(Obj);
-            _db.SaveChanges();
+            await _db.SaveChangesAsync();
             return Obj;
         }
 
-        public bool Delete(int id)
+        public async Task<bool> DeleteAsync(int id)
         { 
             var book = _db.Book.Find(id);
             if (book == null) return false;
             _db.Book.Remove(book);
-            _db.SaveChanges();
+            await _db.SaveChangesAsync();
             return true; }
 
-        public Book Get(int id)
+        public async Task<Book> GetAsync(int id)
         {
             var obj = _db.Book.Find(id);
             if (obj == null)
@@ -36,29 +37,32 @@ namespace BookListManager.Repository
             return obj;
         }
 
-       
-        public IEnumerable<Book> GetAll()
+
+        public async Task<IEnumerable<Book>> GetAllAsync()
         {
-            return _db.Book.ToList();
+            return (await _db.Book.ToListAsync());
         }
 
-        public Book GetById(int id)
+        public async Task<Book> GetByIdAsync(int id)
         {
-            return _db.Book.Find(id);
+            return (await _db.Book.FindAsync(id));
         }
 
-        public Book GetByName(string title)
+        public async Task<Book> GetByNameAsync(string title)
         {
-            return _db.Book.FirstOrDefault(c => c.Title == title);
+            return( await _db.Book.FirstOrDefaultAsync(c => c.Title == title));
         }
 
-        public Book Update(Book book)
+        public async Task<Book> UpdateAsync(Book book)
         {
-            var obj = _db.Book.Find(book);
+            var obj = await _db.Book.FirstOrDefaultAsync(u =>u.BookId == book.BookId);
             if (obj is not null)
             {
+                obj.Title = book.Title;
+                obj.Author = book.Author;
+                obj.CategoryId = book.CategoryId; 
                 _db.Book.Update(obj);
-                _db.SaveChanges();
+                await _db.SaveChangesAsync();
                 return obj;
             }
             return new Book();
