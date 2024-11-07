@@ -11,6 +11,6 @@ namespace BookListManager.Repository.IRepository
         public Category GetByName(string name);
         public Category Get (int id);
         public IEnumerable<Category> GetAll(); 
-        public Task<IEnumerable<Category>> GetAllCategoriesWithSubcategories();
+        
     }
 }

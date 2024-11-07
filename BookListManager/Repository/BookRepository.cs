@@ -36,14 +36,7 @@ namespace BookListManager.Repository
             return obj;
         }
 
-        public async Task<IEnumerable<Category>> GetAllCategoriesWithSubcategories()
-        {
-            return await _db.Category
-                .Include(c => c.Subcategories)
-                    .ThenInclude(sc => sc.Subcategories)  // Level 3
-                .Where(c => c.ParentCategoryId == null)
-                .ToListAsync();
-        }
+       
         public IEnumerable<Book> GetAll()
         {
             return _db.Book.ToList();

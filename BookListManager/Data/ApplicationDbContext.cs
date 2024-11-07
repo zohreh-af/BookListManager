@@ -18,11 +18,7 @@ namespace BookListManager.Data
 
         protected override void OnModelCreating(ModelBuilder modelBuilder) 
         {
-            modelBuilder
-                .Entity<Category>()
-                .HasOne(c => c.ParentCategory)
-                .WithMany(c => c.SubCategories)
-                .HasForeignKey(c => c.ParentCategoryId);
+           
             modelBuilder
                 .Entity<Book>()
                 .HasOne(b => b.Category)

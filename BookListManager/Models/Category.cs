@@ -15,9 +15,7 @@ namespace BookListManager.Models
             }
         }
         public ICollection<Book> Books { get; set; }
-        public ICollection<Category> SubCategories { get; set; } = new List<Category>();
-        public int? ParentCategoryId { get; set; }
-        public Category ParentCategory { get; set; }
+
 
 
     }
