@@ -2,6 +2,7 @@
 @inject ICategoryRepository _categoryRepository
 @inject IBookRepository _bookRepository
 @inject NavigationManager Nav
+@inject AuthenticationStateProvider AuthenticationStateProvider
 
 @if (IsProcessing)
 {
@@ -58,11 +59,23 @@ else
     private Book book { get; set; } = new Book();
     private IEnumerable<Category> _Categories = new List<Category>();
     private bool IsProcessing { get; set; } = true ;
+    private bool IsUserLoggedIn { get; set; } = false;
 
     protected override async Task OnInitializedAsync()
     {
-        await LoadBooksCategoriesList();
-        IsProcessing = false;
+
+        var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
+        IsUserLoggedIn = authState.User.Identity.IsAuthenticated;
+
+        if (!IsUserLoggedIn)
+        {
+            Nav.NavigateTo("/login");
+        }
+        else
+        {
+            await LoadBooksCategoriesList();
+            IsProcessing = false;
+        }
     }
 
     private async Task LoadBooksCategoriesList()

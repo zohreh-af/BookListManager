@@ -1,11 +1,11 @@
 ﻿@page "/Books"
-@attribute [StreamRendering]
 @using BookListManager.Models
 @using BookListManager.Data
 @inject NavigationManager Nav
 @inject ICategoryRepository _categoryRepository 
 @inject IBookRepository _bookRepository
 @inject IJSRuntime JS
+@inject AuthenticationStateProvider AuthenticationStateProvider
 
 @if (IsProcessing)
 {
@@ -21,16 +21,18 @@ else
         <div class="col-6">
             <a class="navbar-brand" href="#">BookListManager</a>
         </div>
-
-        <div class="col-6 text-end">
-            <a class="btn btn-primary" href="/Book/AddBook">
-                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-plus-circle" viewBox="0 0 16 16">
-                    <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14m0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16" />
-                    <path d="M8 4a.5.5 0 0 1 .5.5v3h3a.5.5 0 0 1 0 1h-3v3a.5.5 0 0 1-1 0v-3h-3a.5.5 0 0 1 0-1h3v-3A.5.5 0 0 1 8 4" />
-                </svg>
-                Create New Book
-            </a>
-        </div>
+            @if (IsUserLoggedIn)
+            {
+                <div class="col-6 text-end">
+                    <a class="btn btn-primary" href="/Book/AddBook">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-plus-circle" viewBox="0 0 16 16">
+                            <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14m0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16" />
+                            <path d="M8 4a.5.5 0 0 1 .5.5v3h3a.5.5 0 0 1 0 1h-3v3a.5.5 0 0 1-1 0v-3h-3a.5.5 0 0 1 0-1h3v-3A.5.5 0 0 1 8 4" />
+                        </svg>
+                        Create New Book
+                    </a>
+                </div>
+            }
     </div>
 
     <div class="table-responsive mt-4">
@@ -51,17 +53,22 @@ else
                         <td>@book.Author</td>
                         <td>@(book.Category?.CategoryName)</td>
                         <td>
-                            
-                            
-                            <a  class="btn btn-dark" href="/Book/EditBook/@book.BookId"><i class="bi bi-pencil-fill"></i> Edit</a>
-                            <EditForm
-                                Model="book"
-                                FormName="@($"formBook-{book.BookId}")"
-                                      OnValidSubmit="@(() => { ConfirmDelete(book.BookId); })">
-                                    <button type="submit" class="btn btn-danger" ><i class="bi bi-trash3"></i> Delete</button>
+
+                                @if (IsUserLoggedIn)
+                                {
+                                    <a  class="btn btn-dark" href="/Book/EditBook/@book.BookId"><i class="bi bi-pencil-fill"></i> Edit</a>
+                                    <EditForm
+                                        Model="book"
+                                        FormName="@($"formBook-{book.BookId}")"
+                                              OnValidSubmit="@(() => { ConfirmDelete(book.BookId); })">
+                                            <button type="submit" class="btn btn-danger" ><i class="bi bi-trash3"></i> Delete</button>
                         
-                            </EditForm>
-                           
+                                    </EditForm>
+                                }
+                                else
+                                {
+                                <p>Login to access to action</p>
+                                }
                         </td>
                     </tr>
                 }
@@ -74,13 +81,16 @@ else
     private IEnumerable<Book> books { get; set; } = new List<Book>();
     //private IEnumerable<Category> Categories  = new List<Category>();
     private bool IsProcessing { get; set; } = true;
-    // private List<Category> categories = CategoriesRepository.GetCategories();
-    //private bool isUserAuthorized;
+    private bool IsUserLoggedIn { get; set; } = false;
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
         if (firstRender)
         {
+            var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
+            IsUserLoggedIn = authState.User.Identity.IsAuthenticated;
+
+
             await LoadBooksCategoriesList();
             IsProcessing = false;
             StateHasChanged();

@@ -4,6 +4,7 @@
 @inject NavigationManager Nav
 @inject ICategoryRepository _categoryRepository
 @inject IJSRuntime JS
+@inject AuthenticationStateProvider AuthenticationStateProvider
 
 
 <div class=" container">
@@ -11,16 +12,18 @@
         <div class="col-6">
             <a class="navbar-brand" href="#">BookListManager</a>
         </div>
-
-        <div class="col-6 text-end">
-            <a class="btn btn-primary" href="/Categories/AddCategory">
-                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-plus-circle" viewBox="0 0 16 16">
-                    <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14m0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16" />
-                    <path d="M8 4a.5.5 0 0 1 .5.5v3h3a.5.5 0 0 1 0 1h-3v3a.5.5 0 0 1-1 0v-3h-3a.5.5 0 0 1 0-1h3v-3A.5.5 0 0 1 8 4" />
-                </svg>
-                Create New Category
-            </a>
-        </div>
+        @if (IsUserLoggedIn)
+        {
+                <div class="col-6 text-end">
+                    <a class="btn btn-primary" href="/Categories/AddCategory">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-plus-circle" viewBox="0 0 16 16">
+                            <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14m0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16" />
+                            <path d="M8 4a.5.5 0 0 1 .5.5v3h3a.5.5 0 0 1 0 1h-3v3a.5.5 0 0 1-1 0v-3h-3a.5.5 0 0 1 0-1h3v-3A.5.5 0 0 1 8 4" />
+                        </svg>
+                        Create New Category
+                    </a>
+                </div>
+        }
     </div>
 
     <div class="table-responsive mt-4">
@@ -37,6 +40,8 @@
                     <tr>
                         <td>@Category.CategoryName</td>
                         <td>
+                            @if (IsUserLoggedIn)
+                            {
                                 <a class="btn btn-dark" href="/Category/EditCategory/@Category.CategoryId"><i class="bi bi-pencil-fill"></i> Edit</a>
                                 <EditForm Model="Category"
                                       FormName="@($"formBook-{Category.CategoryId}")"
@@ -44,7 +49,11 @@
                                     <button type="submit" class="btn btn-danger"><i class="bi bi-trash3"></i> Delete</button>
 
                                 </EditForm>
-                            
+                            }
+                            else
+                            {
+                                <p>Login to access to action</p>
+                            }
                         </td>
                     </tr>
                 }
@@ -54,16 +63,16 @@
 </div>
 
 @code {
-    private IEnumerable<Category> Categories { get; set; } = new List<Category>();
-    // private List<Category> categories = CategoriesRepository.GetCategories();
-    //private bool isUserAuthorized;
+    private bool IsUserLoggedIn { get; set; } = false;
 
-    // protected override async Task OnInitializedAsync()
-    // {
-    //     isUserAuthorized = await AuthService.IsAuthenticatedAsync();
-    // }
+    private IEnumerable<Category> Categories { get; set; } = new List<Category>();
+    
     protected override async Task OnInitializedAsync()
     {
+        var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
+        IsUserLoggedIn = authState.User.Identity.IsAuthenticated;
+
+
         await LoadCategories();
     }
 

@@ -2,6 +2,7 @@
 @using BookListManager.Models
 @inject NavigationManager Nav
 @inject ICategoryRepository _categoryRepository 
+@inject AuthenticationStateProvider AuthenticationStateProvider
 
 @if (Category != null)
 {
@@ -54,10 +55,23 @@ else
 
     [SupplyParameterFromForm(FormName = "formCategory")]
     private Category? Category { get; set; }
+    private bool IsUserLoggedIn { get; set; } = false;
+
 
     protected override async Task OnInitializedAsync()
     {
-        await LoadCategories();
+
+        var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
+        IsUserLoggedIn = authState.User.Identity.IsAuthenticated;
+
+        if (!IsUserLoggedIn)
+        {
+            Nav.NavigateTo("/login");
+        }
+        else
+        {
+            await LoadCategories();
+        }
     }
 
     private async Task LoadCategories()
