@@ -8,25 +8,19 @@
 
 <!-- Category Filter -->
 <div class="mb-3">
-    <EditForm  OnValidSubmit="OnCategoryChanged">
-        
-        <!-- Category Filter Dropdown -->
-        <div class="mb-3">
-            <label for="categoryFilter" class="form-label">Select Category</label>
-            <InputSelect @bind-Value="selectedCategoryId" class="form-select" id="categoryFilter">
-                <option value="0" disabled selected>--Select Category--</option>
-                @foreach (var category in categories)
-                {
-                    <option value="@category.CategoryId">@category.CategoryName</option>
-                }
-            </InputSelect>
-        </div>
-        <div>
-            <button type="submit" class="btn btn-primary">Filter</button>
-        </div>
-
-    </EditForm>
-
+    <div class="mb-3">
+        <label for="categoryFilter" class="form-label">Select Category</label>
+        <InputSelect @bind-Value="selectedCategoryId" class="form-select" id="categoryFilter">
+            <option value="0">--Select Category--</option>
+            @foreach (var category in categories)
+            {
+                <option value="@category.CategoryId">@category.CategoryName</option>  <!-- Ensure CategoryName exists -->
+            }
+        </InputSelect>
+    </div>
+    <div>
+        <button @onclick="OnCategoryChanged" class="btn btn-primary">Filter</button>
+    </div>
 </div>
 
 <!-- Latest Added Books Section -->
@@ -35,14 +29,29 @@
     <div class="book-list">
         @if (latestBooks.Any())
         {
-            @foreach (var book in latestBooks)
-            {
-                <div class="book-item">
-                    <h5>@book.Title</h5>
-                    <p>Author: @book.Author</p>
-                    <p>Category: @book.Category.CategoryName</p>
-                </div>
-            }
+            <div class="table-responsive mt-4">
+                <table class="table table-hover table-striped">
+                    <thead>
+                        <tr>
+                            <th>Title</th>
+                            <th>Author</th>
+                            <th>Category</th>
+
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var book in latestBooks)
+                        {
+                            <tr>
+                                <td>@book.Title</td>
+                                <td>@book.Author</td>
+                                <td>@(book.Category?.CategoryName)</td>
+
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
         }
         else
         {
@@ -56,15 +65,28 @@
 {
     <div class="filtered-books">
         <h4>Books in Selected Category</h4>
-        <div class="book-list">
-            @foreach (var book in filteredBooks)
-            {
-                <div class="book-item">
-                    <h5>@book.Title</h5>
-                    <p>Author: @book.Author</p>
-                    <p>Category: @book.Category.CategoryName</p>
-                </div>
-            }
+        <div class="table-responsive mt-4">
+            <table class="table table-hover table-striped">
+                <thead>
+                    <tr>
+                        <th>Title</th>
+                        <th>Author</th>
+                        <th>Category</th>
+                        
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var book in filteredBooks)
+                    {
+                        <tr>
+                            <td>@book.Title</td>
+                            <td>@book.Author</td>
+                            <td>@(book.Category?.CategoryName)</td>
+                            
+                        </tr>
+                    }
+                </tbody>
+            </table>
         </div>
     </div>
 }
@@ -90,12 +112,11 @@
     private async Task OnCategoryChanged( )
     {
         // Update the selected category
-        selectedCategoryId = int.Parse(e.Value.ToString() ?? "0");
-
+        
         if (selectedCategoryId == 0)
         {
             // If "All Categories" is selected, show the latest books
-            filteredBooks = await _bookRepository.GetBooksByCategoryAsync(0); // Default to all books
+            filteredBooks = latestBooks; // Default to all books
         }
         else
         {
