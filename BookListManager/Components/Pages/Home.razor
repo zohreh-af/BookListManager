@@ -1,7 +1,106 @@
 ﻿@page "/"
+@inject ICategoryRepository _categoryRepository
+@inject IBookRepository _bookRepository
+@inject NavigationManager Nav
 
-<PageTitle>Home</PageTitle>
 
-<h1>Hello, world!</h1>
+<h3>Book List</h3>
 
-Welcome to your new app.
+<!-- Category Filter -->
+<div class="mb-3">
+    <EditForm  OnValidSubmit="OnCategoryChanged">
+        
+        <!-- Category Filter Dropdown -->
+        <div class="mb-3">
+            <label for="categoryFilter" class="form-label">Select Category</label>
+            <InputSelect @bind-Value="selectedCategoryId" class="form-select" id="categoryFilter">
+                <option value="0" disabled selected>--Select Category--</option>
+                @foreach (var category in categories)
+                {
+                    <option value="@category.CategoryId">@category.CategoryName</option>
+                }
+            </InputSelect>
+        </div>
+        <div>
+            <button type="submit" class="btn btn-primary">Filter</button>
+        </div>
+
+    </EditForm>
+
+</div>
+
+<!-- Latest Added Books Section -->
+<div class="latest-books">
+    <h4>Latest Added Books</h4>
+    <div class="book-list">
+        @if (latestBooks.Any())
+        {
+            @foreach (var book in latestBooks)
+            {
+                <div class="book-item">
+                    <h5>@book.Title</h5>
+                    <p>Author: @book.Author</p>
+                    <p>Category: @book.Category.CategoryName</p>
+                </div>
+            }
+        }
+        else
+        {
+            <p>No latest books available.</p>
+        }
+    </div>
+</div>
+
+<!-- Display Books After Category Filter -->
+@if (filteredBooks.Any() && selectedCategoryId != 0)
+{
+    <div class="filtered-books">
+        <h4>Books in Selected Category</h4>
+        <div class="book-list">
+            @foreach (var book in filteredBooks)
+            {
+                <div class="book-item">
+                    <h5>@book.Title</h5>
+                    <p>Author: @book.Author</p>
+                    <p>Category: @book.Category.CategoryName</p>
+                </div>
+            }
+        </div>
+    </div>
+}
+
+@code {
+    private IEnumerable<Book> latestBooks = new List<Book>();
+    private IEnumerable<Book> filteredBooks = new List<Book>();
+    private IEnumerable<Category> categories = new List<Category>();
+    private int selectedCategoryId = 0;
+
+    protected override async Task OnInitializedAsync()
+    {
+        // Load categories
+        categories = await _categoryRepository.GetAllAsync();
+
+        // Load the latest books by default (sorted by CreatedDate descending)
+        latestBooks = await _bookRepository.GetLatestBooksAsync();
+
+        // Initially load all books (optional step)
+        filteredBooks = await _bookRepository.GetBooksByCategoryAsync(selectedCategoryId);
+    }
+
+    private async Task OnCategoryChanged( )
+    {
+        // Update the selected category
+        selectedCategoryId = int.Parse(e.Value.ToString() ?? "0");
+
+        if (selectedCategoryId == 0)
+        {
+            // If "All Categories" is selected, show the latest books
+            filteredBooks = await _bookRepository.GetBooksByCategoryAsync(0); // Default to all books
+        }
+        else
+        {
+            // Otherwise, filter books by the selected category
+            filteredBooks = await _bookRepository.GetBooksByCategoryAsync(selectedCategoryId);
+        }
+    }
+}

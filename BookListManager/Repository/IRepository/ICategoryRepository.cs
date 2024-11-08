@@ -10,6 +10,7 @@ namespace BookListManager.Repository.IRepository
         public Task<Category> GetByIdAsync(int id);
         public Task<Category> GetByNameAsync(string name);
         
+        
         public Task<IEnumerable<Category>> GetAllAsync(); 
         
     }

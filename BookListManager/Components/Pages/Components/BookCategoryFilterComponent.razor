@@ -1,0 +1,53 @@
+﻿@inject ICategoryRepository _categoryRepository
+@inject IBookRepository _bookRepository
+@inject NavigationManager Nav
+
+
+<EditForm Model="@categoryFilter" OnValidSubmit="OnSubmit">
+    <DataAnnotationsValidator />
+    <ValidationSummary />
+
+    <!-- Category Filter Dropdown -->
+    <div class="mb-3">
+        <label for="categoryFilter" class="form-label">Select Category</label>
+        <InputSelect @bind-Value="categoryFilter.SelectedCategoryId" class="form-select" id="categoryFilter">
+            <option value="0" disabled selected>--Select Category--</option>
+            @foreach (var category in categories)
+            {
+                <option value="@category.CategoryId">@category.CategoryName</option>
+            }
+        </InputSelect>
+    </div>
+    <div>
+        <button type="submit" class="btn btn-primary">Filter</button>
+    </div>
+    
+</EditForm>
+
+
+
+
+
+@code {
+    private CategoryFilter categoryFilter = new CategoryFilter();
+    private IEnumerable<Category> categories = new List<Category>();
+
+    // Load categories when the component is initialized
+    protected override async Task OnInitializedAsync()
+    {
+        categories = await _categoryRepository.GetAllAsync();
+    }
+
+    // Handle form submission
+    private void OnSubmit()
+    {
+        // Redirect to the FilteredBooks page with the selected categoryId
+        Nav.NavigateTo($"/filteredbooks/{categoryFilter.SelectedCategoryId}");
+    }
+
+    // Model to hold the selected category ID
+    public class CategoryFilter
+    {
+        public int SelectedCategoryId { get; set; }
+    }
+}

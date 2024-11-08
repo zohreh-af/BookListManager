@@ -25,22 +25,41 @@ namespace BookListManager.Repository
             if (book == null) return false;
             _db.Book.Remove(book);
             await _db.SaveChangesAsync();
-            return true; }
-
-        public async Task<Book> GetAsync(int id)
-        {
-            var obj = _db.Book.Find(id);
-            if (obj == null)
-            {
-                return new Book();
-            }
-            return obj;
+            return true; 
         }
+        public async Task<IEnumerable<Book>> GetLatestBooksAsync()
+        {
+            return await _db.Book
+                .OrderByDescending(b => b.Created) // Assuming you have a CreatedDate property
+                .Include(b => b.Category)
+                .Take(10) // Optional: limit to the 5 most recent books
+                .ToListAsync();
+        }
+
+        public async Task<IEnumerable<Book>> GetBooksByCategoryAsync(int categoryId)
+        {
+            // Asynchronously find the category by its ID
+            var category = await _db.Category.FindAsync(categoryId);
+
+            if (categoryId == 0)
+            {
+                // If category not found, return an empty list
+                return new List<Book>();
+            }
+
+            // Asynchronously get books filtered by the category ID
+            var books = await _db.Book
+                .Where(book => book.CategoryId == categoryId)
+                .ToListAsync();
+
+            return books;
+        }
+
 
 
         public async Task<IEnumerable<Book>> GetAllAsync()
         {
-            return (await _db.Book.ToListAsync());
+            return (await _db.Book.Include(b =>b.Category).ToListAsync());
         }
 
         public async Task<Book> GetByIdAsync(int id)

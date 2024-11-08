@@ -10,10 +10,15 @@ namespace BookListManager.Models
         public string Title { get; set; }
         [Required]
         public string Author { get; set; }
-
+        public DateTime Created { get; set; }
         public int CategoryId { get; set; }
         [ForeignKey("CategoryId")]
         public  Category Category { get; set; }
-        
+
+        public Book()
+        {
+            Created = DateTime.UtcNow; // Use UTC to avoid timezone issues
+        }
+
     }
 }

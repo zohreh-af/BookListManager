@@ -1,9 +1,18 @@
 ﻿@page "/Book/AddBook"
-
+@inject ICategoryRepository _categoryRepository
+@inject IBookRepository _bookRepository
 @inject NavigationManager Nav
-        
-            <div class="container mt-4">
-                <div class="col-md-8 offset-md-2">
+
+@if (IsProcessing)
+{
+    <div class="position-absolute w-75 h-75 d-flex flex-column align-items-center bg-white justify-content-center">
+        <p>Loading!!!</p>
+    </div>
+}
+else
+{
+    <div class="container mt-4">
+        <div class="col-md-8 offset-md-2">
                     <div class="card">
                         <div class="card-header bg-primary text-white">
                             <h2>Add Book</h2>
@@ -21,6 +30,16 @@
                                     <label class="form-label">Author</label>
                                     <InputText @bind-Value="book.Author" class="form-control" placeholder="Who wrote it?"></InputText> 
                                     </div>
+                                <div class="form-group mb-3">
+                                    <ValidationMessage For="() =>book.Category "></ValidationMessage>
+                                    <label class="form-label">Category</label>
+                                    <InputSelect @bind-Value="book.CategoryId" class="form-select" id="category">
+                                        <option value="0" disabled selected>--Select Category--</option>
+                                        @foreach (var category in _Categories){
+                                            <option value="@category.CategoryId">@category.CategoryName</option>
+                                        }
+                                    </InputSelect> 
+                                    </div>
                                 <div class="d-flex justify-content-between">
                                     <button type="submit" class="btn btn-primary">Save</button>
                                     <a href="/Books" >Cancel</a>
@@ -30,19 +49,32 @@
                     </div>
                 </div>
             </div>
-       
+}       
        
 
 
 @code {
     [SupplyParameterFromForm]
     private Book book { get; set; } = new Book();
+    private IEnumerable<Category> _Categories = new List<Category>();
+    private bool IsProcessing { get; set; } = true ;
 
-    private void Submit()
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadBooksCategoriesList();
+        IsProcessing = false;
+    }
+
+    private async Task LoadBooksCategoriesList()
+    {
+        _Categories = await _categoryRepository.GetAllAsync();
+    }
+
+    private async void Submit()
     {
         if(book != null)
         {
-            //BooksRepository.AddBook(book); 
+            await _bookRepository.CreateAsync(book);
             Nav.NavigateTo("/Books");
         }
         
